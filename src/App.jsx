@@ -46,7 +46,22 @@ const Portfolio = () => {
       features: ['User Registration', 'Service Search', 'Dynamic Allocation', 'Real-time Notifications'],
       status: 'In Development',
       github: null
-    },
+    },{
+    title: 'ConnectChat',
+    description: 'Developed a real-time chat application enabling instant messaging with user authentication and a scalable backend for seamless communication.',
+    tech: ['React', 'React Router', 'Material-UI', 'Socket.io', 'Node.js', 'Express', 'MongoDB'],
+    features: ['Real-time Messaging', 'Authentication', 'Socket-based Communication', 'Scalable Backend'],
+    status: 'Completed',
+    github: "https://github.com/BHAVISHYA6/ConnectChat.git"
+  },
+  {
+    title: 'QuikCart',
+    description: 'Built a full-stack online shopping web application with product listings, cart management, and a streamlined checkout experience.',
+    tech: ['React', 'Node.js', 'Express', 'MongoDB'],
+    features: ['Product Listings', 'Cart Management', 'Checkout System', 'User-friendly UI'],
+    status: 'Completed',
+    github: "https://github.com/BHAVISHYA6/QuikCart.git"
+  },
     {
       title: 'Crime Detection Dataset',
       description: 'Organized crime-related datasets for detection systems with real-time data integration and advanced feature engineering for improved model accuracy.',
@@ -326,35 +341,68 @@ const Portfolio = () => {
           </div>
         </section>
 
-        <section id="experience" className="py-16">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className={`transition-all duration-1000 ${isVisible.experience ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-3xl font-bold text-center mb-12 text-[var(--black)]">Experience</h2>
-              <div className="section-card p-6 hover-scale">
-                <h3 className="text-xl font-bold text-[var(--black)] mb-4 flex items-center">
-                  <Users className="w-8 h-8 text-[var(--cerulean)] mr-3" />
-                  Leadership & Experience
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="border-l-4 border-[var(--cerulean)] pl-4">
-                      <h4 className="text-base font-semibold text-[var(--black)]">Member of Student Development Council (SDC) 2025</h4>
-                      <p className="text-[var(--black)]/80">Event Coordinator for ABHISARGA 2025 & UTKRISTA. Led planning and execution of major college events, ensuring seamless operations across a 3-day annual fest.</p>
-                      <p className="text-sm text-[var(--black)]/70">Managed logistics, vendor relations, and participant engagement, boosting student involvement.</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="border-l-4 border-[var(--muted-teal)] pl-4">
-                      <h4 className="text-base font-semibold text-[var(--black)]">Club Management</h4>
-                      <p className="text-[var(--black)]/80">Oversaw operations of 8 Technical & 7 Non-technical Clubs.</p>
-                      <p className="text-sm text-[var(--black)]/70">Drove engagement through workshops and events, enhancing student participation.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+<section id="experience" className="py-16">
+  <div className="max-w-6xl mx-auto px-6">
+    <div className={`transition-all duration-1000 ${isVisible.experience ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      
+      <h2 className="text-3xl font-bold text-center mb-12 text-[var(--black)]">
+        Experience
+      </h2>
+
+      <div className="section-card p-6 hover-scale">
+        
+        <h3 className="text-xl font-bold text-[var(--black)] mb-6 flex items-center">
+          <Users className="w-8 h-8 text-[var(--cerulean)] mr-3" />
+          Leadership & Experience
+        </h3>
+
+        <div className="space-y-6">
+
+          {/* 1️⃣ Abhisarga 2026 */}
+          <div className="border-l-4 border-[var(--cerulean)] pl-4">
+            <h4 className="text-base font-semibold text-[var(--black)]">
+              Event Management Lead – Abhisarga 2026
+            </h4>
+            <p className="text-[var(--black)]/80">
+              Led the planning and execution of Abhisarga 2026, coordinating multiple teams to ensure smooth event operations across all domains.
+            </p>
+            <p className="text-sm text-[var(--black)]/70">
+              Managed logistics, scheduling, team coordination, and real-time issue handling, ensuring successful execution of the institute’s flagship fest.
+            </p>
           </div>
-        </section>
+
+          {/* 2️⃣ SDC Member */}
+          <div className="border-l-4 border-[var(--muted-teal)] pl-4">
+            <h4 className="text-base font-semibold text-[var(--black)]">
+              Member – Student Development Council (SDC) 2025
+            </h4>
+            <p className="text-[var(--black)]/80">
+              Contributed to organizing major institute events including ABHISARGA 2025 and UTKRISTA, ensuring smooth coordination across teams.
+            </p>
+            <p className="text-sm text-[var(--black)]/70">
+              Handled logistics, participant management, and event execution, improving overall student engagement and participation.
+            </p>
+          </div>
+
+          {/* 3️⃣ Club Management */}
+          <div className="border-l-4 border-[var(--coral)] pl-4">
+            <h4 className="text-base font-semibold text-[var(--black)]">
+              Club Management & Coordination
+            </h4>
+            <p className="text-[var(--black)]/80">
+              Oversaw operations of 8 technical and 7 non-technical clubs, ensuring smooth functioning and coordination between teams.
+            </p>
+            <p className="text-sm text-[var(--black)]/70">
+              Organized workshops, events, and collaborative activities to enhance student participation and skill development.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
 
         <section id="achievements" className="py-16 bg-[var(--beige)]">
           <div className="max-w-6xl mx-auto px-6">
