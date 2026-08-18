@@ -212,7 +212,7 @@ const Portfolio = () => {
         <div className="max-w-6xl mx-auto px-6 h-10 flex items-center justify-between font-mono text-[11px] tracking-wide">
           <div className="flex items-center gap-2">
             <span className="status-dot" />
-            <span className="text-[var(--white-90)]">OPEN TO WORK — FULL-STACK / BACKEND</span>
+            <span className="text-[var(--white-90)]">OPEN TO WORK — SDE / BACKEND</span>
           </div>
           <div className="hidden sm:flex items-center gap-4 text-[var(--white-50)]">
             <span>IST {timeString}</span>
