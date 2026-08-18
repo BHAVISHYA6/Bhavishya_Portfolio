@@ -1,80 +1,198 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Phone, MapPin, Linkedin, Github, Download, ExternalLink, Award, Code, Database, Monitor, Users, Star, User, GraduationCap, Briefcase, Trophy, MessageCircle, FileText, Heart, BookOpen } from 'lucide-react';
+import {
+  Mail, Phone, MapPin, Linkedin, Github, Download, Award, Code, Database,
+  Monitor, Star, Briefcase, Trophy, Layers, Terminal, Code2, ArrowUpRight,
+  ArrowRight, Moon, Sun
+} from 'lucide-react';
 
-const Portfolio = () => {
-  const [activeSection, setActiveSection] = useState('personal');
-  const [isVisible, setIsVisible] = useState({});
+const ModuleTag = ({ index, label }) => (
+  <span className="module-tag">{`0${index} — ${label}`}</span>
+);
 
+const useReveal = () => {
+  const [visible, setVisible] = useState({});
   useEffect(() => {
+    const sections = document.querySelectorAll('section[id]');
+
+    if (!('IntersectionObserver' in window)) {
+      setVisible(
+        Array.from(sections).reduce((acc, section) => ({ ...acc, [section.id]: true }), {})
+      );
+      return undefined;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          setIsVisible(prev => ({
-            ...prev,
-            [entry.target.id]: entry.isIntersecting
-          }));
+          if (entry.isIntersecting) {
+            setVisible((prev) => ({ ...prev, [entry.target.id]: true }));
+          }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.12 }
     );
-
-    const sections = document.querySelectorAll('section[id]');
-    sections.forEach((section) => observer.observe(section));
+    sections.forEach((s) => observer.observe(s));
     return () => observer.disconnect();
   }, []);
+  return visible;
+};
 
-  const scrollToSection = (sectionId) => {
-    document.getElementById(sectionId)?.scrollIntoView({ 
-      behavior: 'smooth',
-      block: 'start'
-    });
-  };
+const getInitialTheme = () => {
+  if (typeof window === 'undefined') return 'light';
 
-  const skills = {
-    programming: ['C', 'C++', 'Python', 'Java'],
-    webDev: ['HTML', 'CSS', 'JavaScript', 'Node.js', 'Express.js'],
-    databases: ['MySQL', 'MongoDB', 'SQLite'],
-    tools: ['VS Code', 'Git & GitHub', 'Ubuntu', 'Matlab', 'Postman', 'npm'],
-    soft: ['Time Management', 'Communication', 'Problem Solving', 'Team Leadership']
-  };
+  try {
+    const savedTheme = window.localStorage.getItem('portfolio-theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme;
+  } catch {
+    // Storage can be unavailable in private browsing; system preference still works.
+  }
+
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
+
+const Portfolio = () => {
+  const visible = useReveal();
+  const [clock, setClock] = useState(new Date());
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+
+    try {
+      window.localStorage.setItem('portfolio-theme', theme);
+    } catch {
+      // The theme remains active for this session when storage is unavailable.
+    }
+  }, [theme]);
+
+  useEffect(() => {
+    const t = setInterval(() => setClock(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const timeString = clock.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Kolkata'
+  });
+
+  const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const skillGroups = [
+    { flag: '--lang', title: 'Languages', icon: Code, items: ['C', 'C++', 'Java', 'JavaScript'] },
+    { flag: '--frontend', title: 'Frontend', icon: Monitor, items: ['React.js', 'Redux', 'Tailwind CSS', 'HTML5', 'CSS3', 'EJS'] },
+    { flag: '--backend', title: 'Backend', icon: Terminal, items: ['Node.js', 'Express.js', 'REST APIs', 'Socket.IO', 'JWT Auth'] },
+    { flag: '--data', title: 'Databases', icon: Database, items: ['MongoDB', 'SQL', 'Mongoose'] },
+    { flag: '--core', title: 'Core CS', icon: Layers, items: ['DSA', 'Operating Systems', 'DBMS', 'OOP (Java)', 'Networks', 'Architecture'] }
+  ];
+
+  const tools = ['Git', 'GitHub', 'Postman', 'VS Code', 'Ubuntu/Linux', 'npm'];
 
   const projects = [
     {
-      title: 'Service Helper Allocation Platform',
-      description: 'A web-based platform connecting service seekers with local helpers using modern web technologies, ensuring seamless user experiences and efficient matching algorithms.',
-      tech: ['HTML', 'CSS', 'JavaScript', 'Node.js', 'Express', 'MongoDB'],
-      features: ['User Registration', 'Service Search', 'Dynamic Allocation', 'Real-time Notifications'],
-      status: 'In Development',
-      github: null
-    },{
-    title: 'ConnectChat',
-    description: 'Developed a real-time chat application enabling instant messaging with user authentication and a scalable backend for seamless communication.',
-    tech: ['React', 'React Router', 'Material-UI', 'Socket.io', 'Node.js', 'Express', 'MongoDB'],
-    features: ['Real-time Messaging', 'Authentication', 'Socket-based Communication', 'Scalable Backend'],
-    status: 'Completed',
-    github: "https://github.com/BHAVISHYA6/ConnectChat.git"
-  },
-  {
-    title: 'QuikCart',
-    description: 'Built a full-stack online shopping web application with product listings, cart management, and a streamlined checkout experience.',
-    tech: ['React', 'Node.js', 'Express', 'MongoDB'],
-    features: ['Product Listings', 'Cart Management', 'Checkout System', 'User-friendly UI'],
-    status: 'Completed',
-    github: "https://github.com/BHAVISHYA6/QuikCart.git"
-  },
+      title: 'MediTalk',
+      description: 'A full-stack telemedicine platform supporting appointment booking, real-time messaging, and video consultations through Jitsi integration.',
+      tech: ['React', 'Vite', 'Redux', 'Node.js', 'Express', 'MongoDB', 'Socket.IO', 'Jitsi', 'JWT'],
+      features: ['Role-based access for patients, doctors & admins', 'Doctor verification workflows', 'Automated PDF receipts', 'Real-time video consultations'],
+      status: 'shipped',
+      href: 'https://github.com/BHAVISHYA6/MediTalk'
+    },
+    {
+      title: 'Service Sphere',
+      description: 'A scalable backend platform for discovering, booking, and managing household and professional services end to end.',
+      tech: ['React.js', 'Node.js', 'Express.js', 'MongoDB', 'JWT'],
+      features: ['5+ modular subsystems', 'Booking & status tracking', 'Feedback system', 'Document verification'],
+      status: 'shipped',
+      href: 'https://github.com/jah-navii/ServiceSphere-FSD'
+    },
+    {
+      title: 'ConnectChat',
+      description: 'A real-time chat application with user authentication and a scalable backend for instant messaging.',
+      tech: ['React', 'React Router', 'Material-UI', 'Socket.io', 'Node.js', 'Express', 'MongoDB'],
+      features: ['Real-time messaging', 'Authentication', 'Socket-based communication', 'Scalable backend'],
+      status: 'shipped',
+      href: 'https://github.com/BHAVISHYA6/ConnectChat.git'
+    },
+    {
+      title: 'QuikCart',
+      description: 'A full-stack online shopping application with product listings, cart management, and checkout.',
+      tech: ['React', 'Node.js', 'Express', 'MongoDB'],
+      features: ['Product listings', 'Cart management', 'Checkout system', 'User-friendly UI'],
+      status: 'shipped',
+      href: 'https://github.com/BHAVISHYA6/QuikCart.git'
+    },
     {
       title: 'Crime Detection Dataset',
-      description: 'Organized crime-related datasets for detection systems with real-time data integration and advanced feature engineering for improved model accuracy.',
-      tech: ['Python', 'Data Processing Libraries', 'Feature Engineering Tools'],
-      features: ['Data Cleaning', 'Feature Selection', 'Real-time Pipelines'],
-      status: 'Completed',
-      link: 'https://authors.elsevier.com/a/1ldbT_LfeK7fbw'
+      description: 'Organized crime-related datasets for detection systems, with real-time data integration and feature engineering for improved model accuracy.',
+      tech: ['Python', 'Data Processing', 'Feature Engineering'],
+      features: ['Data cleaning', 'Feature selection', 'Real-time pipelines'],
+      status: 'published',
+      href: 'https://authors.elsevier.com/a/1ldbT_LfeK7fbw'
+    }
+  ];
+
+  const education = [
+    { degree: 'B.Tech in Computer Science', school: 'IIIT Sri City', period: 'Expected 2027 · Final Year', metric: 'CGPA 8.62' },
+    { degree: 'Intermediate (MPC)', school: 'Narayana Junior College, Tirupati', period: '2021 – 2023', metric: '98.5%' },
+    { degree: 'Schooling', school: 'Sri Chaitanya Techno School, Puttur', period: 'Completed 2021', metric: 'CGPA 10/10' }
+  ];
+
+  const experience = {
+    role: 'Software Development Intern',
+    org: 'Vayumitra',
+    period: 'May 2026 — Present',
+    log: [
+      'Designed data validation schemas and automated quality-check pipelines for a MERN-based Wind Data Analytics Platform, cutting manual validation effort by 40%.',
+      'Built and tested REST API endpoints for data storage and analytics workflows, collaborating cross-functionally with Git/GitHub in an agile team.'
+    ]
+  };
+
+  const leadership = [
+    {
+      role: 'Event Management Lead',
+      org: 'ABHISARGA 2026',
+      period: '2026',
+      points: [
+        'Coordinated execution for a 3-day annual fest across multiple teams.',
+        'Managed logistics, scheduling, and real-time issue handling across all domains.'
+      ]
+    },
+    {
+      role: 'Member, Student Development Council',
+      org: 'IIIT Sri City',
+      period: '2024 – 2025',
+      points: [
+        'Coordinated activities across 8 technical and 7 non-technical clubs.',
+        'Supported ABHISARGA 2025 and UTKRISTA, handling logistics and participants.'
+      ]
+    },
+    {
+      role: 'Member, Marketing Team',
+      org: 'Web3ssh',
+      period: '2025',
+      points: [
+        'Executed outreach across 15+ colleges, lifting student participation 20%.',
+        'Promoted blockchain technologies through campaigns and community outreach.'
+      ]
     }
   ];
 
   const achievements = [
-    { type: 'Secured ~10k Rank', subject: 'JEE Advanced', icon: Trophy },
-    { type: 'Qualified 1st Level', subject: 'NTSE Examination', icon: Award }
+    { label: 'JEE Advanced', detail: 'All-India rank ~10,000', icon: Trophy },
+    { label: 'NTSE Examination', detail: 'Qualified Level 1', icon: Award },
+    { label: 'Infosys Springboard', detail: 'Web Development certification', icon: Star }
+  ];
+
+  const nav = [
+    { id: 'about', label: 'About' },
+    { id: 'education', label: 'Education' },
+    { id: 'stack', label: 'Stack' },
+    { id: 'projects', label: 'Projects' },
+    { id: 'experience', label: 'Experience' },
+    { id: 'contact', label: 'Contact' }
   ];
 
   const downloadResume = () => {
@@ -86,197 +204,190 @@ const Portfolio = () => {
     document.body.removeChild(link);
   };
 
-  const navItems = [
-    { id: 'personal', label: 'Personal', icon: User },
-    { id: 'reflections', label: 'Reflections', icon: MessageCircle },
-    { id: 'education', label: 'Education', icon: GraduationCap },
-    { id: 'skills', label: 'Skills', icon: Code },
-    { id: 'projects', label: 'Projects', icon: Briefcase },
-    { id: 'experience', label: 'Experience', icon: Briefcase },
-    { id: 'achievements', label: 'Achievements', icon: Trophy },
-    { id: 'extracurricular', label: 'Activities', icon: Heart },
-    { id: 'resume', label: 'Resume', icon: Download },
-    { id: 'contact', label: 'Contact', icon: Mail }
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#fffde7] to-[#ffffff]">
-      <nav className="fixed top-0 w-full bg-[#ffffff]/95 backdrop-blur-md shadow-md z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14">
-            <div className="text-2xl font-bold text-[var(--cerulean)]">C Bhavishya</div>
-            <div className="flex space-x-1">
-              {navItems.slice(0, 5).map(({ id, label, icon: Icon }) => (
-                <button
-                  key={id}
-                  onClick={() => scrollToSection(id)}
-                  className="flex items-center space-x-1 px-2 py-1 rounded-lg text-sm font-medium text-[var(--black)] hover:text-[var(--cerulean)] hover:bg-[var(--beige)] transition-all duration-200"
-                >
-                  <Icon size={14} />
-                  <span>{label}</span>
-                </button>
-              ))}
-            </div>
+    <div className="min-h-screen bg-[var(--paper)] text-[var(--ink)]">
+      {/* Status bar — the page's signature: it treats the portfolio like a
+          running service, not a brochure. */}
+      <div className="status-bar fixed top-0 w-full z-50 bg-[var(--ink)] text-[var(--white)] border-b border-[var(--line-dark)]">
+        <div className="max-w-6xl mx-auto px-6 h-10 flex items-center justify-between font-mono text-[11px] tracking-wide">
+          <div className="flex items-center gap-2">
+            <span className="status-dot" />
+            <span className="text-[var(--white-90)]">OPEN TO WORK — FULL-STACK / BACKEND</span>
+          </div>
+          <div className="hidden sm:flex items-center gap-4 text-[var(--white-50)]">
+            <span>IST {timeString}</span>
+            <span>TIRUPATI, IN</span>
+          </div>
+        </div>
+      </div>
+
+      <nav className="fixed top-10 w-full z-50 bg-[var(--paper-70)] backdrop-blur-md border-b border-[var(--line)]">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+          <button onClick={() => scrollTo('about')} className="font-mono text-sm font-medium tracking-tight" aria-label="Go to top">
+            c_bhavishya<span className="text-[var(--signal)]">.</span>dev
+          </button>
+          <div className="hidden md:flex items-center gap-6">
+            {nav.map((n) => (
+              <button
+                key={n.id}
+                onClick={() => scrollTo(n.id)}
+                className="font-mono text-xs uppercase tracking-widest text-[var(--ink-70)] hover:text-[var(--wire)] transition-colors"
+              >
+                {n.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')}
+              className="theme-toggle"
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              aria-pressed={theme === 'dark'}
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              {theme === 'dark' ? <Sun size={15} aria-hidden="true" /> : <Moon size={15} aria-hidden="true" />}
+            </button>
+            <button
+              onClick={downloadResume}
+              className="font-mono text-[10px] sm:text-xs uppercase tracking-widest border border-[var(--ink)] px-2.5 sm:px-3 py-1.5 hover:bg-[var(--ink)] hover:text-[var(--white)] transition-colors"
+            >
+              Resume
+            </button>
           </div>
         </div>
       </nav>
 
-      <div className="pt-16">
-        <section id="personal" className="py-16 bg-gradient-to-r from-[var(--cerulean)] to-[var(--muted-teal)]">
-          <div className="max-w-4xl mx-auto px-6 text-center text-[var(--white)]">
-            <div className={`animate-hero ${isVisible.personal ? 'opacity-100' : 'opacity-0'}`}>
-              <div className="w-24 h-24 mx-auto mb-6 bg-[var(--white)] rounded-full flex items-center justify-center shadow-lg overflow-hidden">
-                <img src="/profile.jpg" alt="Profile" className="w-full h-full object-cover" />
+      <main className="pt-28">
+        {/* ---------- HERO ---------- */}
+        <section id="about" className="max-w-6xl mx-auto px-6 py-16">
+          <div className={`grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-10 ${visible.about ? 'animate-in' : 'opacity-0'}`}>
+            <div>
+              <ModuleTag index={1} label="Overview" />
+              <h1 className="text-[2.6rem] sm:text-6xl font-extrabold leading-[1.03] mb-6">
+                C. Bhavishya builds<br />
+                systems that <span className="text-[var(--wire)]">hold up</span><br />
+                under load.
+              </h1>
+              <p className="text-base sm:text-lg text-[var(--ink-70)] max-w-xl mb-8 leading-relaxed">
+                Final-year Computer Science student at IIIT Sri City and Software
+                Development Intern at Vayumitra, working across the MERN stack —
+                from data validation pipelines to real-time systems and role-based
+                platform architecture.
+              </p>
+              <div className="flex flex-wrap gap-3 mb-10">
+                <button
+                  onClick={() => scrollTo('projects')}
+                  className="inline-flex items-center gap-2 bg-[var(--ink)] text-[var(--white)] px-5 py-3 font-mono text-xs uppercase tracking-widest hover:bg-[var(--wire)] transition-colors"
+                >
+                  View Projects <ArrowRight size={14} />
+                </button>
+                <button
+                  onClick={() => scrollTo('contact')}
+                  className="inline-flex items-center gap-2 border border-[var(--ink)] px-5 py-3 font-mono text-xs uppercase tracking-widest hover:bg-[var(--ink)] hover:text-[var(--white)] transition-colors"
+                >
+                  Get in Touch
+                </button>
               </div>
-              <h1 className="text-4xl font-bold mb-4">C BHAVISHYA</h1>
-              <p className="text-lg mb-6">Computer Science Student | Web Developer | Innovator</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                <div className="flex items-center justify-center space-x-2 bg-[var(--white)]/10 rounded-lg p-3">
-                  <Mail size={16} />
-                  <a href="mailto:bhavishya.c23@iiits.in" className="hover:underline">bhavishya.c23@iiits.in</a>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-xs text-[var(--ink-55)]">
+                <a href="https://github.com/BHAVISHYA6" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[var(--wire)]"><Github size={14} /> github</a>
+                <a href="https://www.linkedin.com/in/bhavishya-c-2b6b14328/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[var(--wire)]"><Linkedin size={14} /> linkedin</a>
+                <a href="https://leetcode.com/u/BHAVI765/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[var(--wire)]"><Code2 size={14} /> leetcode</a>
+              </div>
+            </div>
+
+            {/* Stat panel — reads like a monitoring widget for a person */}
+            <div className="panel-dark blueprint-dark text-[var(--white)] p-6 h-fit">
+              <div className="flex items-center justify-between font-mono text-[11px] text-[var(--white-50)] mb-6 border-b border-[var(--line-dark)] pb-4">
+                <span>profile.status</span>
+                <span className="flex items-center gap-1.5"><span className="status-dot" />live</span>
+              </div>
+              <div className="grid grid-cols-2 gap-5 mb-6">
+                <div>
+                  <p className="font-mono text-2xl font-semibold">8.62</p>
+                  <p className="font-mono text-[11px] text-[var(--white-50)] uppercase tracking-wide">CGPA / 10</p>
                 </div>
-                <div className="flex items-center justify-center space-x-2 bg-[var(--white)]/10 rounded-lg p-3">
-                  <Phone size={16} />
-                  <span>+91 6301801739</span>
+                {/* <div>
+                  <p className="font-mono text-2xl font-semibold">5</p>
+                  <p className="font-mono text-[11px] text-[var(--white-50)] uppercase tracking-wide">Projects shipped</p>
+                </div> */}
+                {/* <div>
+                  <p className="font-mono text-2xl font-semibold">40%</p>
+                  <p className="font-mono text-[11px] text-[var(--white-50)] uppercase tracking-wide">Validation effort cut</p>
+                </div> */}
+                <div>
+                  <p className="font-mono text-2xl font-semibold">2027</p>
+                  <p className="font-mono text-[11px] text-[var(--white-50)] uppercase tracking-wide">Graduating</p>
                 </div>
-                <div className="flex items-center justify-center space-x-2 bg-[var(--white)]/10 rounded-lg p-3">
-                  <MapPin size={16} />
-                  <span>Tirupati, Andhra Pradesh</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2 bg-[var(--white)]/10 rounded-lg p-3">
-                  <Linkedin size={16} />
-                  <a href="https://www.linkedin.com/in/bhavishya-c-2b6b14328/" target="_blank" rel="noopener noreferrer" className="hover:underline">linkedin.com/in/Bhavishya</a>
-                </div>
+              </div>
+              <div className="border-t border-[var(--line-dark)] pt-4 space-y-2 font-mono text-xs text-[var(--white-70)]">
+                <div className="flex items-center gap-2"><Mail size={13} className="text-[var(--signal)]" /> bhavishya.c23@iiits.in</div>
+                <div className="flex items-center gap-2"><Phone size={13} className="text-[var(--signal)]" /> +91 6301801739</div>
+                <div className="flex items-center gap-2"><MapPin size={13} className="text-[var(--signal)]" /> Tirupati, Andhra Pradesh</div>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="reflections" className="py-16">
-          <div className="max-w-4xl mx-auto px-6">
-            <div className={`transition-all duration-1000 ${isVisible.reflections ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-3xl font-bold text-center mb-12 text-[var(--black)]">Personal Reflections</h2>
-              <div className="section-card p-6 hover-scale">
-                <div className="flex items-start mb-4">
-                  <MessageCircle className="w-10 h-10 text-[var(--cerulean)] mt-1 mr-3" />
-                  <div>
-                    <h3 className="text-xl font-bold text-[var(--black)] mb-3">My Journey & Goals</h3>
-                    <div className="space-y-3 text-[var(--black)]/80">
-                      <p>As a third-year Computer Science student at IIIT Sri City, my passion lies in crafting impactful tech solutions, merging theory with practical applications in web development and data processing.</p>
-                      <p>Projects like the Service Helper Allocation Platform and Crime Detection Dataset have sharpened my skills in user-centric design, efficient algorithms, and real-time systems, while emphasizing collaborative problem-solving.</p>
-                      <p>Leading event coordination has honed my organizational and communication skills. I'm eager to pursue full-stack development internships to contribute to innovative solutions.</p>
+        {/* ---------- EDUCATION ---------- */}
+        <section id="education" className="border-y border-[var(--line)] blueprint">
+          <div className="max-w-6xl mx-auto px-6 py-16">
+            <div className={visible.education ? 'animate-in' : 'opacity-0'}>
+              <ModuleTag index={2} label="Education" />
+              <h2 className="text-3xl font-bold mb-10">Academic record</h2>
+              <div className="rail max-w-3xl">
+                {education.map((e, idx) => (
+                  <div key={idx} className="rail-node pb-10 last:pb-0">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <h3 className="text-lg font-bold">{e.degree}</h3>
+                      <span className="font-mono text-xs px-2 py-1 border border-[var(--wire)] text-[var(--wire)]">{e.metric}</span>
                     </div>
+                    <p className="text-[var(--ink-70)]">{e.school}</p>
+                    <p className="font-mono text-xs text-[var(--ink-55)] mt-1">{e.period}</p>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
-        <section id="education" className="py-16 bg-[var(--beige)]">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className={`transition-all duration-1000 ${isVisible.education ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-3xl font-bold text-center mb-12 text-[var(--black)]">Education</h2>
-              <div className="space-y-6">
-                <div className="section-card p-6 hover-scale">
-                  <div className="flex items-start space-x-4">
-                    <GraduationCap className="w-10 h-10 text-[var(--cerulean)]" />
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-[var(--black)] mb-2">B.Tech in Computer Science</h3>
-                      <p className="text-lg text-[var(--cerulean)] mb-2">Indian Institute of Information Technology, Sri City</p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[var(--black)]/80">Expected 2027</span>
-                        <span className="bg-[var(--coral)]/20 text-[var(--coral)] px-3 py-1 rounded-full font-semibold">CGPA: 8.62</span>
-                      </div>
+        {/* ---------- STACK ---------- */}
+        <section id="stack" className="max-w-6xl mx-auto px-6 py-16">
+          <div className={visible.stack ? 'animate-in' : 'opacity-0'}>
+            <ModuleTag index={3} label="Stack" />
+            <h2 className="text-3xl font-bold mb-10">Working set</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {skillGroups.map(({ flag, title, icon: Icon, items }) => (
+                <div key={flag} className="panel hover-lift p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Icon size={16} className="text-[var(--wire)]" />
+                      <h3 className="font-bold text-sm">{title}</h3>
                     </div>
+                    <span className="font-mono text-[10px] text-[var(--ink-40)]">{flag}</span>
                   </div>
-                </div>
-                <div className="section-card p-6 hover-scale">
-                  <div className="flex items-start space-x-4">
-                    <BookOpen className="w-10 h-10 text-[var(--muted-teal)]" />
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-[var(--black)] mb-2">Intermediate (MPC)</h3>
-                      <p className="text-lg text-[var(--muted-teal)] mb-2">Narayana Junior College - Tirupati</p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[var(--black)]/80">2021 - 2023</span>
-                        <span className="bg-[var(--muted-teal)]/20 text-[var(--muted-teal)] px-3 py-1 rounded-full font-semibold">98.5%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="section-card p-6 hover-scale">
-                  <div className="flex items-start space-x-4">
-                    <Star className="w-10 h-10 text-[var(--coral)]" />
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-[var(--black)] mb-2">Schooling</h3>
-                      <p className="text-lg text-[var(--coral)] mb-2">Sri Chaitanya Techno School, Puttur, Tirupati</p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[var(--black)]/80">Completed 2021</span>
-                        <span className="bg-[var(--coral)]/20 text-[var(--coral)] px-3 py-1 rounded-full font-semibold">CGPA: 10/10</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="skills" className="py-16">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className={`transition-all duration-1000 ${isVisible.skills ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-3xl font-bold text-center mb-12 text-[var(--black)]">Technical Skills</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="section-card p-6 hover-scale">
-                  <div className="flex items-center mb-4">
-                    <Code className="w-8 h-8 text-[var(--cerulean)] mr-3" />
-                    <h3 className="text-lg font-bold text-[var(--black)]">Programming</h3>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {skills.programming.map((skill, idx) => (
-                      <span key={idx} className="bg-[var(--cerulean)]/20 text-[var(--cerulean)] px-3 py-1 rounded-full text-sm font-medium">{skill}</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {items.map((item) => (
+                      <span key={item} className="font-mono text-[11px] bg-[var(--paper-deep)] text-[var(--ink-70)] px-2 py-1 rounded-sm">
+                        {item}
+                      </span>
                     ))}
                   </div>
                 </div>
-                <div className="section-card p-6 hover-scale">
-                  <div className="flex items-center mb-4">
-                    <Monitor className="w-8 h-8 text-[var(--muted-teal)] mr-3" />
-                    <h3 className="text-lg font-bold text-[var(--black)]">Web Development</h3>
+              ))}
+              <div className="panel hover-lift p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Terminal size={16} className="text-[var(--wire)]" />
+                    <h3 className="font-bold text-sm">Tooling</h3>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {skills.webDev.map((skill, idx) => (
-                      <span key={idx} className="bg-[var(--muted-teal)]/20 text-[var(--muted-teal)] px-3 py-1 rounded-full text-sm font-medium">{skill}</span>
-                    ))}
-                  </div>
+                  <span className="font-mono text-[10px] text-[var(--ink-40)]">--env</span>
                 </div>
-                <div className="section-card p-6 hover-scale">
-                  <div className="flex items-center mb-4">
-                    <Database className="w-8 h-8 text-[var(--coral)] mr-3" />
-                    <h3 className="text-lg font-bold text-[var(--black)]">Databases</h3>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {skills.databases.map((skill, idx) => (
-                      <span key={idx} className="bg-[var(--coral)]/20 text-[var(--coral)] px-3 py-1 rounded-full text-sm font-medium">{skill}</span>
-                    ))}
-                  </div>
-                </div>
-                <div className="section-card p-6 hover-scale">
-                  <div className="flex items-center mb-4">
-                    <Users className="w-8 h-8 text-[var(--cerulean)] mr-3" />
-                    <h3 className="text-lg font-bold text-[var(--black)]">Soft Skills</h3>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {skills.soft.map((skill, idx) => (
-                      <span key={idx} className="bg-[var(--cerulean)]/20 text-[var(--cerulean)] px-3 py-1 rounded-full text-sm font-medium">{skill}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-8 section-card p-6">
-                <h3 className="text-lg font-bold text-[var(--black)] mb-4 text-center">Development Tools & Environment</h3>
-                <div className="flex flex-wrap justify-center gap-3">
-                  {skills.tools.map((tool, idx) => (
-                    <span key={idx} className="bg-[var(--beige)] text-[var(--black)] px-4 py-2 rounded-lg font-medium hover:bg-[var(--cerulean)]/20 hover:text-[var(--cerulean)] transition-colors duration-200">{tool}</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {tools.map((tool) => (
+                    <span key={tool} className="font-mono text-[11px] bg-[var(--paper-deep)] text-[var(--ink-70)] px-2 py-1 rounded-sm">
+                      {tool}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -284,56 +395,75 @@ const Portfolio = () => {
           </div>
         </section>
 
-        <section id="projects" className="py-16 bg-[var(--beige)]">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className={`transition-all duration-1000 ${isVisible.projects ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-3xl font-bold text-center mb-12 text-[var(--black)]">Projects</h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {projects.map((project, idx) => (
-                  <div key={idx} className="section-card p-6 hover-scale">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-xl font-bold text-[var(--black)]">{project.title}</h3>
-                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        project.status === 'Completed' 
-                          ? 'bg-[var(--muted-teal)]/20 text-[var(--muted-teal)]' 
-                          : 'bg-[var(--coral)]/20 text-[var(--coral)]'
-                      }`}>
-                        {project.status}
+        {/* ---------- PROJECTS ---------- */}
+        <section id="projects" className="border-y border-[var(--line)] bg-[var(--paper-deep)]">
+          <div className="max-w-6xl mx-auto px-6 py-16">
+            <div className={visible.projects ? 'animate-in' : 'opacity-0'}>
+              <ModuleTag index={4} label="Projects" />
+              <h2 className="text-3xl font-bold mb-10">Selected builds</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {projects.map((p) => (
+                  <a
+                    key={p.title}
+                    href={p.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="panel hover-lift p-6 flex flex-col group"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-lg font-bold">{p.title}</h3>
+                      <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide text-[var(--wire)]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--wire)]" />
+                        {p.status}
                       </span>
                     </div>
-                    <p className="text-[var(--black)]/80 mb-4">{project.description}</p>
-                    <div className="mb-4">
-                      <h4 className="text-base font-semibold text-[var(--black)] mb-2">Key Features:</h4>
-                      <ul className="grid grid-cols-1 gap-2">
-                        {project.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-center text-[var(--black)]/80">
-                            <div className="w-2 h-2 bg-[var(--cerulean)] rounded-full mr-2"></div>
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
+                    <p className="text-sm text-[var(--ink-70)] mb-4 leading-relaxed">{p.description}</p>
+                    <ul className="space-y-1.5 mb-4">
+                      {p.features.map((f) => (
+                        <li key={f} className="flex items-start text-xs text-[var(--ink-70)]">
+                          <span className="w-1 h-1 mt-1.5 mr-2 bg-[var(--signal)] flex-shrink-0" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="flex flex-wrap gap-1.5 mb-5 mt-auto">
+                      {p.tech.map((t) => (
+                        <span key={t} className="font-mono text-[10px] border border-[var(--line)] text-[var(--ink-55)] px-1.5 py-0.5">{t}</span>
+                      ))}
                     </div>
-                    <div className="mb-4">
-                      <h4 className="text-base font-semibold text-[var(--black)] mb-2">Technologies:</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {project.tech.map((tech, idx) => (
-                          <span key={idx} className="bg-[var(--cerulean)]/20 text-[var(--cerulean)] px-3 py-1 rounded-full text-sm font-medium">{tech}</span>
-                        ))}
-                      </div>
-                    </div>
-                    {project.github ? (
-                      <a href={project.github} target="_blank" rel="noopener noreferrer" className="flex items-center text-[var(--cerulean)] hover:text-[var(--muted-teal)] font-semibold transition-colors duration-200">
-                        <Github className="w-5 h-5 mr-2" />
-                        View on GitHub
-                        <ExternalLink className="w-4 h-4 ml-1" />
-                      </a>
-                    ) : project.link ? (
-                      <a href={project.link} target="_blank" rel="noopener noreferrer" className="flex items-center text-[var(--cerulean)] hover:text-[var(--muted-teal)] font-semibold transition-colors duration-200">
-                        <ExternalLink className="w-5 h-5 mr-2" />
-                        View Publication
-                        <ExternalLink className="w-4 h-4 ml-1" />
-                      </a>
-                    ) : null}
+                    <span className="inline-flex items-center gap-1 font-mono text-xs font-medium text-[var(--ink)] group-hover:text-[var(--wire)] transition-colors">
+                      View source <ArrowUpRight size={13} />
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ---------- EXPERIENCE ---------- */}
+        <section id="experience" className="max-w-6xl mx-auto px-6 py-16">
+          <div className={visible.experience ? 'animate-in' : 'opacity-0'}>
+            <ModuleTag index={5} label="Experience" />
+            <h2 className="text-3xl font-bold mb-10">Build log</h2>
+            <div className="panel-dark text-[var(--white)] p-7 max-w-3xl">
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-5 pb-5 border-b border-[var(--line-dark)]">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-sm bg-[var(--white-08)] flex items-center justify-center">
+                    <Briefcase size={18} className="text-[var(--signal)]" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold">{experience.role}</h3>
+                    <p className="font-mono text-xs text-[var(--white-70)]">{experience.org}</p>
+                  </div>
+                </div>
+                <span className="font-mono text-[11px] text-[var(--white-50)]">{experience.period}</span>
+              </div>
+              <div className="space-y-4">
+                {experience.log.map((line, idx) => (
+                  <div key={idx} className="flex gap-3 font-mono text-xs text-[var(--white-70)] leading-relaxed">
+                    <span className="text-[var(--signal)]">$</span>
+                    <span>{line}</span>
                   </div>
                 ))}
               </div>
@@ -341,241 +471,99 @@ const Portfolio = () => {
           </div>
         </section>
 
-<section id="experience" className="py-16">
-  <div className="max-w-6xl mx-auto px-6">
-    <div className={`transition-all duration-1000 ${isVisible.experience ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-      
-      <h2 className="text-3xl font-bold text-center mb-12 text-[var(--black)]">
-        Experience
-      </h2>
-
-      <div className="section-card p-6 hover-scale">
-        
-        <h3 className="text-xl font-bold text-[var(--black)] mb-6 flex items-center">
-          <Users className="w-8 h-8 text-[var(--cerulean)] mr-3" />
-          Leadership & Experience
-        </h3>
-
-        <div className="space-y-6">
-
-          {/* 1️⃣ Abhisarga 2026 */}
-          <div className="border-l-4 border-[var(--cerulean)] pl-4">
-            <h4 className="text-base font-semibold text-[var(--black)]">
-              Event Management Lead – Abhisarga 2026
-            </h4>
-            <p className="text-[var(--black)]/80">
-              Led the planning and execution of Abhisarga 2026, coordinating multiple teams to ensure smooth event operations across all domains.
-            </p>
-            <p className="text-sm text-[var(--black)]/70">
-              Managed logistics, scheduling, team coordination, and real-time issue handling, ensuring successful execution of the institute’s flagship fest.
-            </p>
-          </div>
-
-          {/* 2️⃣ SDC Member */}
-          <div className="border-l-4 border-[var(--muted-teal)] pl-4">
-            <h4 className="text-base font-semibold text-[var(--black)]">
-              Member – Student Development Council (SDC) 2025
-            </h4>
-            <p className="text-[var(--black)]/80">
-              Contributed to organizing major institute events including ABHISARGA 2025 and UTKRISTA, ensuring smooth coordination across teams.
-            </p>
-            <p className="text-sm text-[var(--black)]/70">
-              Handled logistics, participant management, and event execution, improving overall student engagement and participation.
-            </p>
-          </div>
-
-          {/* 3️⃣ Club Management */}
-          <div className="border-l-4 border-[var(--coral)] pl-4">
-            <h4 className="text-base font-semibold text-[var(--black)]">
-              Club Management & Coordination
-            </h4>
-            <p className="text-[var(--black)]/80">
-              Oversaw operations of 8 technical and 7 non-technical clubs, ensuring smooth functioning and coordination between teams.
-            </p>
-            <p className="text-sm text-[var(--black)]/70">
-              Organized workshops, events, and collaborative activities to enhance student participation and skill development.
-            </p>
-          </div>
-
-        </div>
-
-      </div>
-    </div>
-  </div>
-</section>
-
-        <section id="achievements" className="py-16 bg-[var(--beige)]">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className={`transition-all duration-1000 ${isVisible.achievements ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-3xl font-bold text-center mb-12 text-[var(--black)]">Achievements & Awards</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {achievements.map((achievement, idx) => (
-                  <div key={idx} className="section-card p-6 hover-scale">
-                    <div className="flex items-center mb-4">
-                      <div className={`p-3 rounded-full ${
-                        achievement.type.includes('Secured') 
-                          ? 'bg-[var(--coral)]/20 text-[var(--coral)]' 
-                          : 'bg-[var(--cerulean)]/20 text-[var(--cerulean)]'
-                      }`}>
-                        <achievement.icon size={20} />
-                      </div>
-                      <div className="ml-4">
-                        <h3 className="text-base font-bold text-[var(--black)]">{achievement.type}</h3>
-                        <p className="text-[var(--black)]/80">{achievement.subject}</p>
-                      </div>
-                    </div>
+        {/* ---------- LEADERSHIP ---------- */}
+        <section className="border-y border-[var(--line)] bg-[var(--paper-deep)]">
+          <div className="max-w-6xl mx-auto px-6 py-16">
+            <ModuleTag index={6} label="Leadership" />
+            <h2 className="text-3xl font-bold mb-10">Beyond the stack</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {leadership.map((item) => (
+                <div key={item.role} className="panel hover-lift p-5">
+                  <h3 className="font-bold text-sm mb-1">{item.role}</h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs text-[var(--wire)] font-medium">{item.org}</span>
+                    <span className="font-mono text-[10px] text-[var(--ink-40)]">{item.period}</span>
                   </div>
-                ))}
-              </div>
+                  <ul className="space-y-1.5">
+                    {item.points.map((p) => (
+                      <li key={p} className="text-xs text-[var(--ink-70)] leading-relaxed">{p}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        <section id="extracurricular" className="py-16">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className={`transition-all duration-1000 ${isVisible.extracurricular ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-3xl font-bold text-center mb-12 text-[var(--black)]">Extracurricular & Volunteering</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="section-card p-6 hover-scale">
-                  <div className="flex items-center mb-4">
-                    <Heart className="w-8 h-8 text-[var(--coral)] mr-3" />
-                    <h3 className="text-lg font-bold text-[var(--black)]">Community Engagement</h3>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="border-l-4 border-[var(--coral)] pl-4">
-                      <h4 className="text-base font-semibold text-[var(--black)]">Marketing Member - Web3ssh</h4>
-                      <p className="text-[var(--black)]/80">Promoted blockchain technologies through social media campaigns and community outreach.</p>
-                    </div>
-                    <div className="border-l-4 border-[var(--coral)] pl-4">
-                      <h4 className="text-base font-semibold text-[var(--black)]">Event Coordination</h4>
-                      <p className="text-[var(--black)]/80">Coordinated ABHISARGA 2024 & 2025, UTKRISTA, managing logistics and team collaboration.</p>
-                    </div>
-                  </div>
+        {/* ---------- ACHIEVEMENTS ---------- */}
+        <section className="max-w-6xl mx-auto px-6 py-16">
+          <ModuleTag index={7} label="Achievements" />
+          <h2 className="text-3xl font-bold mb-10">Recognition</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {achievements.map(({ label, detail, icon: Icon }) => (
+              <div key={label} className="panel hover-lift p-5 flex items-center gap-4">
+                <div className="w-11 h-11 flex items-center justify-center bg-[var(--signal-15)] flex-shrink-0">
+                  <Icon size={18} className="text-[var(--signal)]" />
                 </div>
-                <div className="section-card p-6 hover-scale">
-                  <div className="flex items-center mb-4">
-                    <Users className="w-8 h-8 text-[var(--muted-teal)] mr-3" />
-                    <h3 className="text-lg font-bold text-[var(--black)]">Campus Activities</h3>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="border-l-4 border-[var(--muted-teal)] pl-4">
-                      <h4 className="text-base font-semibold text-[var(--black)]">Club Participation</h4>
-                      <p className="text-[var(--black)]/80">Active in technical and non-technical clubs, fostering skill development and networking.</p>
-                    </div>
-                    <div className="border-l-4 border-[var(--muted-teal)] pl-4">
-                      <h4 className="text-base font-semibold text-[var(--black)]">Volunteering Initiatives</h4>
-                      <p className="text-[var(--black)]/80">Organized workshops and events to enhance campus life and learning environments.</p>
-                    </div>
-                  </div>
+                <div>
+                  <h3 className="font-bold text-sm">{label}</h3>
+                  <p className="text-xs text-[var(--ink-70)]">{detail}</p>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        <section id="resume" className="py-16 bg-[var(--beige)]">
-          <div className="max-w-4xl mx-auto px-6">
-            <div className={`transition-all duration-1000 ${isVisible.resume ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-3xl font-bold text-center mb-12 text-[var(--black)]">Resume</h2>
-              <div className="section-card p-6 hover-scale">
-                <div className="text-center mb-6">
-                  <div className="bg-[var(--cerulean)]/20 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                    <FileText className="w-10 h-10 text-[var(--cerulean)]" />
-                  </div>
-                  <h3 className="text-xl font-bold text-[var(--black)] mb-3">Download Resume</h3>
-                  <p className="text-[var(--black)]/80 mb-4">Access a detailed PDF of my resume, covering education, experience, projects, and achievements.</p>
-                  <button 
-                    onClick={downloadResume}
-                    className="bg-[var(--cerulean)] hover:bg-[var(--muted-teal)] text-[var(--white)] px-6 py-3 rounded-lg font-semibold flex items-center mx-auto transition-all duration-200 hover-scale"
-                  >
-                    <Download className="w-5 h-5 mr-2" />
-                    Download PDF
-                  </button>
-                </div>
-                <div className="p-4 bg-[var(--beige)]/50 rounded-lg">
-                  <h4 className="text-base font-semibold text-[var(--black)] mb-2">Portfolio Summary</h4>
-                  <p className="text-[var(--black)]/80">This portfolio showcases my academic journey, technical skills, projects, and leadership roles. Contact me for project details or collaboration.</p>
-                </div>
+        {/* ---------- CONTACT ---------- */}
+        <section id="contact" className="border-t border-[var(--line-dark)] bg-[var(--ink)] text-[var(--white)]">
+          <div className="max-w-6xl mx-auto px-6 py-20">
+            <ModuleTag index={8} label="Contact" />
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4 max-w-xl">
+              Open to SDE and backend engineering roles.
+            </h2>
+            <p className="text-[var(--white-70)] max-w-lg mb-10">
+              Reach out about internships, new-grad roles, or collaboration —
+              I usually reply within a day.
+            </p>
+
+            <div className="panel-dark blueprint-dark p-6 mb-10 max-w-2xl font-mono text-sm">
+              <div className="flex items-center gap-2 mb-4 text-[var(--white-50)] text-xs">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--signal-45)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--white-15)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--white-15)]" />
+                <span className="ml-2">contact.sh</span>
               </div>
+              <div className="space-y-2 text-[var(--white-90)]">
+                <p><span className="text-[var(--signal)]">$</span> email <a href="mailto:bhavishya.c23@iiits.in" className="text-[var(--wire)] hover:underline break-all">bhavishya.c23@iiits.in</a></p>
+                <p><span className="text-[var(--signal)]">$</span> phone <span className="text-[var(--white-90)]">+91 6301801739</span></p>
+                <p><span className="text-[var(--signal)]">$</span> location <span className="text-[var(--white-90)]">Tirupati, Andhra Pradesh, IN</span></p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <a href="mailto:bhavishya.c23@iiits.in" className="inline-flex items-center gap-2 bg-[var(--signal)] text-[var(--ink)] px-5 py-3 font-mono text-xs uppercase tracking-widest hover:bg-[var(--white)] transition-colors">
+                <Mail size={14} /> Email Me
+              </a>
+              <a href="https://www.linkedin.com/in/bhavishya-c-2b6b14328/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 border border-[var(--line-dark)] px-5 py-3 font-mono text-xs uppercase tracking-widest hover:border-[var(--white)] transition-colors">
+                <Linkedin size={14} /> LinkedIn
+              </a>
+              <a href="https://github.com/BHAVISHYA6" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 border border-[var(--line-dark)] px-5 py-3 font-mono text-xs uppercase tracking-widest hover:border-[var(--white)] transition-colors">
+                <Github size={14} /> GitHub
+              </a>
+              <button onClick={downloadResume} className="inline-flex items-center gap-2 border border-[var(--line-dark)] px-5 py-3 font-mono text-xs uppercase tracking-widest hover:border-[var(--white)] transition-colors">
+                <Download size={14} /> Resume
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-[var(--line-dark)]">
+            <div className="max-w-6xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] text-[var(--white-50)]">
+              <span>© 2026 C. Bhavishya — built with React &amp; Tailwind</span>
+              <span>status: online</span>
             </div>
           </div>
         </section>
-
-        <section id="contact" className="py-16 bg-gradient-to-r from-[var(--cerulean)] to-[var(--muted-teal)]">
-          <div className="max-w-4xl mx-auto px-6">
-            <div className={`transition-all duration-1000 ${isVisible.contact ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-3xl font-bold text-center mb-12 text-[var(--white)]">Get In Touch</h2>
-              <div className="section-card p-6 bg-[var(--white)]/10 backdrop-blur-md">
-                <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-[var(--white)] mb-3">Let's Connect</h3>
-                  <p className="text-[var(--white)]/80">I'm excited about new opportunities, collaborations, or discussions on tech and innovation.</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-[var(--white)]/10 rounded-lg p-4 text-center hover:bg-[var(--white)]/20 transition-all duration-200">
-                    <Mail className="w-8 h-8 text-[var(--white)] mx-auto mb-2" />
-                    <h4 className="text-base font-semibold text-[var(--white)] mb-1">Email</h4>
-                    <a href="mailto:bhavishya.c23@iiits.in" className="text-[var(--white)]/80 hover:underline">bhavishya.c23@iiits.in</a>
-                  </div>
-                  <div className="bg-[var(--white)]/10 rounded-lg p-4 text-center hover:bg-[var(--white)]/20 transition-all duration-200">
-                    <Phone className="w-8 h-8 text-[var(--white)] mx-auto mb-2" />
-                    <h4 className="text-base font-semibold text-[var(--white)] mb-1">Phone</h4>
-                    <p className="text-[var(--white)]/80">+91 6301801739</p>
-                  </div>
-                </div>
-                <div className="flex justify-center space-x-4">
-                  <a href="https://www.linkedin.com/in/bhavishya-c-2b6b14328/" target="_blank" rel="noopener noreferrer" className="bg-[var(--white)]/20 hover:bg-[var(--white)]/30 text-[var(--white)] p-3 rounded-full transition-all duration-200 hover-scale">
-                    <Linkedin className="w-5 h-5" />
-                  </a>
-                  <a href="https://github.com/BHAVISHYA6" target="_blank" rel="noopener noreferrer" className="bg-[var(--white)]/20 hover:bg-[var(--white)]/30 text-[var(--white)] p-3 rounded-full transition-all duration-200 hover-scale">
-                    <Github className="w-5 h-5" />
-                  </a>
-                  <a href="mailto:bhavishya.c23@iiits.in" className="bg-[var(--white)]/20 hover:bg-[var(--white)]/30 text-[var(--white)] p-3 rounded-full transition-all duration-200 hover-scale">
-                    <Mail className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <footer className="bg-[var(--black)] text-[var(--white)] py-10">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center">
-              <h3 className="text-xl font-bold mb-3">C Bhavishya</h3>
-              <p className="text-[var(--white)]/80 mb-4">Computer Science Student | Web Developer | Innovator</p>
-              <div className="flex justify-center space-x-4 mb-6">
-                {navItems.slice(0, 5).map(({ id, label }) => (
-                  <button
-                    key={id}
-                    onClick={() => scrollToSection(id)}
-                    className="text-[var(--white)]/80 hover:text-[var(--white)] transition-colors duration-200"
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-              <div className="border-t border-[var(--white)]/20 pt-6">
-                <p className="text-[var(--white)]/80">© 2025 C Bhavishya. All rights reserved. | Built with React & Tailwind CSS</p>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
-
-      <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-40 hidden lg:block">
-        <div className="bg-[var(--white)]/90 backdrop-blur-md rounded-full p-2 shadow-lg border border-[var(--cerulean)]/20">
-          {navItems.slice(0, 5).map(({ id, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => scrollToSection(id)}
-              className="block p-2 text-[var(--black)] hover:text-[var(--cerulean)] hover:bg-[var(--beige)] rounded-full transition-all duration-200 mb-1"
-              title={id.charAt(0).toUpperCase() + id.slice(1)}
-            >
-              <Icon size={18} />
-            </button>
-          ))}
-        </div>
-      </div>
+      </main>
     </div>
   );
 };

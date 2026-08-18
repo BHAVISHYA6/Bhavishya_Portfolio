@@ -1,39 +1,300 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+/* ============================================================
+   TOKEN SYSTEM — "Systems Log" direction
+   A backend/data-platform engineer's world is pipelines, build
+   logs, status dashboards and blueprint diagrams. The palette,
+   type and structural language below are built from that world
+   rather than a generic "portfolio" template.
+   ============================================================ */
+
 :root {
-  --cerulean: #007ea7;
-  --beige: #fffde7;
+  /* Color */
+  --paper: #edf0f2;        /* page background — cool blueprint paper */
+  --paper-deep: #e3e8ec;   /* secondary panel background */
+  --ink: #10161c;          /* primary text / dark panel background */
+  --ink-soft: #4a5560;     /* secondary text on paper */
+  --signal: #e8a33d;       /* amber — status / live / primary CTA */
+  --wire: #1f6f5c;         /* teal — links, data-trace accent */
+  --line: #c7d0d6;         /* hairline border on paper */
+  --line-dark: #2a333c;    /* hairline border on ink panels */
   --white: #ffffff;
-  --black: #000000;
-  --coral: #ff6f61;
-  --muted-teal: #4a919e;
+
+  /* Baked-in alpha tones (no Tailwind var()/opacity-modifier fragility) */
+  --ink-80: rgba(16, 22, 28, 0.80);
+  --ink-70: rgba(16, 22, 28, 0.70);
+  --ink-55: rgba(16, 22, 28, 0.55);
+  --ink-40: rgba(16, 22, 28, 0.40);
+  --ink-10: rgba(16, 22, 28, 0.10);
+  --ink-06: rgba(16, 22, 28, 0.06);
+
+  --paper-70: rgba(237, 240, 242, 0.70);
+  --paper-40: rgba(237, 240, 242, 0.40);
+
+  --white-90: rgba(255, 255, 255, 0.90);
+  --white-70: rgba(255, 255, 255, 0.70);
+  --white-50: rgba(255, 255, 255, 0.50);
+  --white-15: rgba(255, 255, 255, 0.15);
+  --white-08: rgba(255, 255, 255, 0.08);
+
+  --signal-15: rgba(232, 163, 61, 0.15);
+  --signal-25: rgba(232, 163, 61, 0.25);
+  --signal-45: rgba(232, 163, 61, 0.45);
+
+  --wire-12: rgba(31, 111, 92, 0.12);
+  --wire-25: rgba(31, 111, 92, 0.25);
+
+  color-scheme: light;
 }
 
-.animate-hero {
-  animation: fadeInUp 1s ease-out;
+:root[data-theme='dark'] {
+  --paper: #0d1218;
+  --paper-deep: #151c24;
+  --ink: #edf3f7;
+  --ink-soft: #aab7c2;
+  --signal: #f2b653;
+  --wire: #57c7aa;
+  --line: #2b3742;
+  --line-dark: #c8d2da;
+  --white: #0b1015;
+
+  --ink-80: rgba(237, 243, 247, 0.80);
+  --ink-70: rgba(237, 243, 247, 0.72);
+  --ink-55: rgba(237, 243, 247, 0.58);
+  --ink-40: rgba(237, 243, 247, 0.42);
+  --ink-10: rgba(237, 243, 247, 0.10);
+  --ink-06: rgba(237, 243, 247, 0.06);
+
+  --paper-70: rgba(13, 18, 24, 0.78);
+  --paper-40: rgba(13, 18, 24, 0.46);
+
+  --white-90: rgba(11, 16, 21, 0.90);
+  --white-70: rgba(11, 16, 21, 0.72);
+  --white-50: rgba(11, 16, 21, 0.55);
+  --white-15: rgba(11, 16, 21, 0.15);
+  --white-08: rgba(11, 16, 21, 0.08);
+
+  --signal-15: rgba(242, 182, 83, 0.16);
+  --signal-25: rgba(242, 182, 83, 0.26);
+  --signal-45: rgba(242, 182, 83, 0.46);
+
+  --wire-12: rgba(87, 199, 170, 0.13);
+  --wire-25: rgba(87, 199, 170, 0.26);
+
+  color-scheme: dark;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+/* In dark mode, inverse surfaces become light; deepen their accents to keep
+   links, status markers and controls comfortably readable. */
+:root[data-theme='dark'] :where(.panel-dark, #contact, .status-bar) {
+  --signal: #9a5d00;
+  --signal-15: rgba(154, 93, 0, 0.15);
+  --signal-45: rgba(154, 93, 0, 0.42);
+  --wire: #176652;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--paper);
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--ink);
+  background-color: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: color 0.25s ease, background-color 0.25s ease;
+}
+
+::selection {
+  color: var(--ink);
+  background: var(--signal-45);
+}
+
+section[id] {
+  scroll-margin-top: 6rem;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Archivo', 'Inter', sans-serif;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+.font-mono {
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Subtle blueprint dot-grid — the page's one recurring texture,
+   used sparingly behind panel sections to evoke schematic paper. */
+.blueprint {
+  background-image: radial-gradient(var(--ink-10) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.blueprint-dark {
+  background-image: radial-gradient(var(--white-08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Module eyebrow — mono index + label, used above every section.
+   The numbering is literal here: it is this page's actual module
+   order, not decoration. */
+.module-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wire);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.module-tag::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--signal);
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+
+:where(.panel) {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+:where(.panel-dark) {
+  background: var(--ink);
+  border: 1px solid var(--line-dark);
+  border-radius: 4px;
+}
+
+.theme-toggle {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--ink-70);
+  background: var(--ink-06);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--ink);
+  background: var(--paper-deep);
+  transform: rotate(8deg);
+}
+
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px var(--ink-10);
+  border-color: var(--wire);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--signal);
+  box-shadow: 0 0 0 3px var(--signal-15);
+  display: inline-block;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--signal-15); }
+  50% { box-shadow: 0 0 0 6px var(--signal-15); }
+}
+
+.animate-in {
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Rail — the vertical connective line used down the education
+   timeline and the experience log, standing in for a pipeline. */
+.rail {
+  position: relative;
+}
+
+.rail::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: var(--line);
+}
+
+.rail-node {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.rail-node::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.4rem;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--wire);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (max-width: 420px) {
+  nav > div {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
   }
+}
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+@media (prefers-reduced-motion: reduce) {
+  .animate-in,
+  .hover-lift,
+  .status-dot,
+  .theme-toggle,
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-}
-
-.hover-scale {
-  transition: transform 0.3s ease;
-}
-
-.hover-scale:hover {
-  transform: scale(1.03);
-}
-
-.section-card {
-  background: linear-gradient(to bottom right, var(--beige), var(--white));
-  border: 1px solid rgba(0, 126, 167, 0.2);
-  border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
